@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { addDoc, deleteDocById, getCollection, getDocById, setDoc, FieldValue } from '../services/firestore.js';
+import { createNotification, notificationTypes } from '../services/notifications.js';
 
 const router = Router();
 const COLLECTION = 'tour_packages';
@@ -32,6 +33,13 @@ router.post('/', async (req, res, next) => {
       status: req.body.status || 'active'
     };
     const created = await addDoc(COLLECTION, payload);
+    
+    await createNotification(
+      notificationTypes.PACKAGE_CREATED,
+      `New package '${payload.title || 'Untitled'}' has been created`,
+      { packageId: created.id }
+    );
+    
     res.status(201).json({ data: created });
   } catch (err) {
     next(err);
@@ -45,6 +53,13 @@ router.put('/:id', async (req, res, next) => {
       updatedAt: FieldValue.serverTimestamp()
     };
     const updated = await setDoc(COLLECTION, req.params.id, payload);
+    
+    await createNotification(
+      notificationTypes.PACKAGE_UPDATED,
+      `Package '${payload.title || 'Unknown'}' has been updated`,
+      { packageId: req.params.id }
+    );
+    
     res.json({ data: updated });
   } catch (err) {
     next(err);

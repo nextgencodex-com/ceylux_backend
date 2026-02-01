@@ -27,7 +27,6 @@ tmp/
 temp/
 
 # Environment & secrets
-.env
 *.env.local
 *.env.development.local
 *.env.test.local
@@ -58,3 +57,4 @@ pnpm-lock.yaml
 
 # TypeScript
 *.tsbuildinfo
+config.bat

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { addDoc, getCollection, getDocById, setDoc, FieldValue } from '../services/firestore.js';
+import { createNotification, notificationTypes } from '../services/notifications.js';
 
 const router = Router();
 const COLLECTION = 'customized_packages';
@@ -32,6 +33,13 @@ router.post('/', async (req, res, next) => {
       status: req.body.status || 'pending'
     };
     const created = await addDoc(COLLECTION, payload);
+    
+    await createNotification(
+      notificationTypes.NEW_INQUIRY,
+      `New customized package inquiry from ${payload.name || 'a customer'}`,
+      { inquiryId: created.id, email: payload.email }
+    );
+    
     res.status(201).json({ data: created });
   } catch (err) {
     next(err);
